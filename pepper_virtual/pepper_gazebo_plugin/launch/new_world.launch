@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="launch_control_trajectory_all" default="true"/>
+  <!-- Load the URDF Model -->
+  <include file="$(find pepper_description)/launch/pepper_publisher.launch" />  
+  <!-- We resume the logic in empty_world.launch, changing only the name of the world to be launched -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find pepper_gazebo_plugin)/worlds/robocup_3Dsim.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="verbose" value="true" />
+  </include>
+
+
+  <!-- Call Pepper Robot Trajectory Controller -->
+
+  <include file="$(find pepper_control)/launch/pepper_control_trajectory.launch" unless="$(arg launch_control_trajectory_all)"/>
+  <include file="$(find pepper_control)/launch/pepper_control_trajectory_all.launch" if="$(arg launch_control_trajectory_all)"/>
+<!--
+  <include file="$(find pepper_control)/launch/pepper_control_position.launch"/>
+-->
+  <!-- Spawn a robot into Gazebo -->
+  <param name="tf_prefix" value="pepper_robot" />
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+    args="-param robot_description -urdf -x -10 -y 10 -z 0.88 -model pepper_robot" />
+
+  <!--<node pkg="tf" type="static_transform_publisher" name="odom_to_footprint" args="-2.00 1 0 0 0 1 pepper_robot/odom base_footprint 100" />-->
+  <!--<node pkg="tf" type="static_transform_publisher" name="link_broadcaster" args="0 0 0.82 0 0 0 1 base_footprint pepper_robot/base_link 100" />-->
+  <!--<node pkg="tf" type="static_transform_publisher" name="base_link_to_base_link" args="0 0 0 0 0 0 1 pepper_robot/base_link base_link 100" />-->
+</launch>
